@@ -1,7 +1,11 @@
 startup_message off
 vbell off
 
-caption always "%{Kg}[%w] %=[%H]"
+activity "Activity in %n (%t)~"
+
+# information bar
+hardstatus alwayslastline
+hardstatus string "%{Kg}[%w] %=[%H]"
 
 # binds
 bind q quit
