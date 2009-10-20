@@ -10,3 +10,6 @@ hardstatus string "%{Kg}[%w] %=[%H]"
 # binds
 bind q quit
 bind a title
+
+# buffers appear in alternative screen
+altscreen on
