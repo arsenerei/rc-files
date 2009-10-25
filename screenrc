@@ -5,7 +5,7 @@ activity "Activity in %n (%t)~"
 
 # information bar
 hardstatus alwayslastline
-hardstatus string "%{Kg}[%w] %=[%H]"
+hardstatus string "%{Kr}[%w] %=[%H]"
 
 # binds
 bind q quit
