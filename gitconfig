@@ -1,0 +1,16 @@
+[user]
+	name = Stephon Striplin
+	email = rei@WaterTemple
+
+[alias]
+	ci = commit
+	co = checkout
+	stat = status
+	praise = blame
+
+[color]
+	ui = true
+	diff = true
+	pager = true
+	status = auto
+	branch = auto
