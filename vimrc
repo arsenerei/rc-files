@@ -21,7 +21,7 @@ set ai
 set ls=2
 
 set list
-set listchars=tab:\¬\ 
+set listchars=tab:\|\ 
 
 set ts=4
 
