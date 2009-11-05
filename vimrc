@@ -34,7 +34,7 @@ set hlsearch
 " incremental searching
 set incsearch
 " search highlighting
-map <Space> :nohl<CR><C-L>
+nnoremap <Space> :nohl<CR><C-L>
 
 set errorformat=%f:%l:%m
 
