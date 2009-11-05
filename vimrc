@@ -14,7 +14,6 @@ set foldmethod=indent
 
 inoremap # X#
 
-"set background=dark
 syntax enable
 
 set ai
@@ -25,13 +24,9 @@ set list
 
 set ts=4
 
-set t_Co=16
+"set t_Co=16
 hi Search ctermbg=DarkGrey
-"hi LineNr ctermfg=DarkGrey
 hi LineNr ctermbg=Black
-"hi Statement ctermfg=Cyan
-"hi Identifier ctermfg=DarkRed
-"hi Comment ctermfg=Blue
 
 " search formating
 " highlight search
