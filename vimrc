@@ -24,6 +24,7 @@ set ls=2
 
 set ts=4
 
+" term colors
 set t_Co=16
 hi Search ctermbg=DarkGrey
 hi LineNr ctermbg=Black
@@ -44,3 +45,7 @@ map <Leader>j :Make<cr>
 syn sync minlines=50
 syn sync fromstart
 map ,# :s/^/#/<CR>
+
+" mouse support
+set mouse=a
+set ttymouse=xterm2
