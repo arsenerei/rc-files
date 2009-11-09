@@ -19,12 +19,12 @@ syntax enable
 set ai
 set ls=2
 
-set list
+"set list
 "set listchars=tab:\|\ 
 
 set ts=4
 
-"set t_Co=16
+set t_Co=16
 hi Search ctermbg=DarkGrey
 hi LineNr ctermbg=Black
 
@@ -38,8 +38,8 @@ nnoremap <Space> :nohl<CR><C-L>
 
 set errorformat=%f:%l:%m
 
-:command -nargs=* Make make <args> | cwindow 3
-:map <Leader>j :Make<cr>
+command -nargs=* Make make <args> | cwindow 3
+map <Leader>j :Make<cr>
 
 syn sync minlines=50
 syn sync fromstart
