@@ -23,6 +23,7 @@ set ls=2
 "set listchars=tab:\|\ 
 
 set ts=4
+set sw=4
 
 " term colors
 set t_Co=16
