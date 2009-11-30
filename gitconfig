@@ -5,6 +5,7 @@
 [alias]
 	ci = commit
 	co = checkout
+	br = branch
 	stat = status
 	praise = blame
 
