@@ -13,8 +13,6 @@ set foldmethod=syntax
 
 set backupdir=$HOME/.vim.backupdir " where .swp files go (I think) 
 
-inoremap # X#
-
 syntax enable
 filetype on
 filetype plugin on
