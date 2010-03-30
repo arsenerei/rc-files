@@ -6,11 +6,12 @@ set backspace=indent,eol,start
 set number
 set nomore
 set ignorecase
+set viminfo='100,f1
 
 set foldlevel=100
-set foldmethod=indent
+set foldmethod=syntax
 
-"set backupdir=$HOME/.vim.backupdir  
+set backupdir=$HOME/.vim.backupdir " where .swp files go (I think) 
 
 inoremap # X#
 
@@ -24,6 +25,10 @@ set ls=2
 
 "set list
 "set listchars=tab:\|\ 
+
+" stop windows from resizing upon closing other windows
+set winfixwidth
+set winfixheight
 
 set ts=4
 set sw=4
@@ -45,7 +50,7 @@ set hlsearch
 " incremental searching
 set incsearch
 " search highlighting
-nnoremap <Space> :nohl<CR><C-L>
+nnoremap <silent> <Space> :nohl<CR><C-L>
 
 set errorformat=%f:%l:%m
 
