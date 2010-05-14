@@ -11,7 +11,7 @@ set viminfo='100,f1
 set foldlevel=100
 set foldmethod=syntax
 
-set backupdir=$HOME/.vim.backupdir " where .swp files go (I think) 
+"set backupdir=$HOME/.vim.backupdir " where .swp files go (I think) 
 
 syntax enable
 filetype on
