@@ -1,17 +1,22 @@
 startup_message off
 vbell off
 
-activity "Activity in %n (%t)~"
-
-# information bar
 hardstatus alwayslastline
-hardstatus string "%{Kg}[%w] %=[%H]"
+#hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%m/%d %{W}%c %{g}]'
+hardstatus string "%{wk}[%w] %=[%H]"
+
+# custom commands
+register s "^an^aS^aR^aj^a^a^aj" # splits a window above with height 20
 
 # binds
+bind j focus
+bind k focus up
 bind q quit
-bind a title
+bind R resize 20
+bind r process s
+bind \' title
 
-# buffers appear in alternative screen
+# buffers (such as with less) will disappear
 altscreen on
 
 # 5000 line buffer
@@ -19,3 +24,15 @@ defscrollback 5000
 
 # Defines the time a message is displayed
 msgwait 1
+
+
+screen bash
+title "fubar"
+
+screen ssh wtf
+title "dev"
+
+screen ssh yakko
+title "yakko"
+
+select 1
