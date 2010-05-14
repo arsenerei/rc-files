@@ -28,9 +28,13 @@ set ls=2
 set winfixwidth
 set winfixheight
 
+nnoremap <silent> <Leader>r  :resize 17<CR>
+"nnoremap <silent> <Leader>=  :resize =<CR>
+
 set ts=4
 set sw=4
 set wrap linebreak textwidth=0
+set so=5 " no more scrolling from the bottom
 
 " term colors
 if &t_Co > 255
@@ -52,8 +56,7 @@ nnoremap <silent> <Space> :nohl<CR><C-L>
 
 set errorformat=%f:%l:%m
 
-"command -nargs=* Make make <args> | cwindow 3
-map <Leader>j :Make<cr>
+map <Leader>j :Make<CR>
 
 syn sync minlines=50
 syn sync fromstart
