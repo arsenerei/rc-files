@@ -245,7 +245,7 @@ if &t_Co > 255
         hi Error ctermfg=210 
     else
         " default is something more zenburn-compatible
-        hi Error ctermfg=228 
+        hi Error ctermfg=228  ctermbg=0
     endif
 endif
 
