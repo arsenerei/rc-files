@@ -68,3 +68,8 @@ set ttymouse=xterm2
 
 " code cleaning
 nnoremap <Leader>c :%s/\s\+$//<CR><C-L>
+
+
+" git command
+" DiffGitCached is available in commits
+nnoremap <Leader>g :DiffGitCached<CR>
