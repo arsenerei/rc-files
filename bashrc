@@ -91,6 +91,39 @@ fi
 #alias la='ls -A'
 #alias l='ls -CF'
 
+
+# vim like key bindings on the command line
+set -o vi
+
+if [ -e /usr/share/terminfo/x/xterm-256color ]; then
+	export TERM='xterm-256color'
+elif [ -e /usr/share/terminfo/x/xterm-color ]; then
+	export TERM='xterm-color'
+else
+	export TERM='xterm'
+fi
+
+function parse_git_branch {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ [\1]/'
+}
+ 
+function proml {
+  case $TERM in
+    xterm*)
+    TITLEBAR='\[\033]0;\u@\h:\w\007\]'
+    ;;
+    *)
+    TITLEBAR=""
+    ;;
+  esac
+ 
+PS1="\u@\h:\w\$(parse_git_branch)$ "
+PS2='> '
+PS4='+ '
+}
+proml
+
+
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
