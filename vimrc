@@ -39,7 +39,7 @@ set so=5 " no more scrolling from the bottom
 " term colors
 if &t_Co > 255
 	set t_Co=256
-	colorscheme burnup
+	colorscheme zenburn
 else
 	set t_Co=16
 	hi Search ctermbg=DarkGrey
