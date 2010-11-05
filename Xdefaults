@@ -15,8 +15,8 @@ urxvt.perl-lib: /home/rei/.config/urxvt/perl
 urxvt.perl-ext-common: default,matcher,clipboard
 urxvt.urlLauncher: firefox
 urxvt.matcher.button: 3
-urxvt.keysym.A-c: perl:clipboard:copy
-urxvt.keysym.A-v: perl:clipboard:paste
+urxvt.keysym.Mod1-c: perl:clipboard:copy
+urxvt.keysym.Mod1-v: perl:clipboard:paste
 
 ! colors
 *background:  #000000
