@@ -9,3 +9,5 @@ User stephon
 Host fubar
 HostName fubar.dreamhost.com
 User stephon
+
+ServerAliveInterval 60
