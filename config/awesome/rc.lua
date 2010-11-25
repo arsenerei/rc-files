@@ -91,35 +91,58 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 
 -- {{{ Widgets
 -- spacer widget
-spacer = widget({ type = "textbox", name = "spacer" });
+spacer = widget({ type = "textbox", name = "spacer" })
 spacer.text = " "
+--spacer = widget({ type = "imagebox" })
+--spacer.image = image(beautiful.widget_sep)
 
 -- textclock widget
-mytextclock = awful.widget.textclock({ align = "right" })
+date_widget = widget({ type = "textbox", align = "right" })
+date_icon = widget({ type = "imagebox" })
+date_icon.image = image(beautiful.widget_date)
+
+vicious.register(date_widget, vicious.widgets.date, "%b %d %R")
 
 -- CPU widget
-cpuwidget = widget({ type = "textbox" })
-vicious.register(cpuwidget, vicious.widgets.cpu, "CPU1: $2% CPU2: $3%")
+cpu_widget = widget({ type = "textbox" })
+vicious.register(cpu_widget, vicious.widgets.cpu, "$2% $3%")
+
+cpu_icon = widget({ type = "imagebox" })
+cpu_icon.image = image(beautiful.widget_cpu)
 
 -- RAM widget
-memwidgettext = widget({ type = "textbox" })
-vicious.register(memwidgettext, vicious.widgets.mem, "MEM: $1%", 13)
+mem_widget = widget({ type = "textbox" })
+vicious.register(mem_widget, vicious.widgets.mem, "$1%", 13)
 
--- RAM bar widget
---memwidgetbar = awful.widget.progressbar()
+mem_icon = widget({ type = "imagebox" })
+mem_icon.image = image(beautiful.widget_mem)
 
---memwidgetbar:set_width(8)
---memwidgetbar:set_height(10)
---memwidgetbar:set_vertical(true)
---memwidgetbar:set_background_color("#494B4F")
---memwidgetbar:set_border_color(nil)
---memwidgetbar:set_gradient_colors({ "#AECF96", "#88A175", "#FF5656" })
+-- Network usage
+down_icon = widget({ type = "imagebox" })
+down_icon.image = image(beautiful.widget_net)
 
---vicious.register(memwidgetbar, vicious.widgets.mem, "$1", 13)
+up_icon = widget({ type = "imagebox" })
+up_icon.image = image(beautiful.widget_netup)
+
+net_widget = widget({ type = "textbox" })
+vicious.register(net_widget, vicious.widgets.net, '<span color="'
+  .. beautiful.fg_netdn_widget ..'">${eth1 down_kb}</span> <span color="'
+  .. beautiful.fg_netup_widget ..'">${eth1 up_kb}</span>', 3)
 
 -- Battery state
-batwidget = widget({ type = "textbox" })
-vicious.register(batwidget, vicious.widgets.bat, "bat: $2%", 60, "BAT0")
+bat_widget = widget({ type = "textbox" })
+vicious.register(bat_widget, vicious.widgets.bat, "$2%", 61, "BAT0")
+
+bat_icon = widget({ type = "imagebox" })
+bat_icon.image = image(beautiful.widget_bat)
+
+-- Mail subject
+mail_icon = widget({ type = "imagebox" })
+mail_icon.image = image(beautiful.widget_mail)
+
+mail_widget = widget({ type = "textbox" })
+vicious.register(mail_widget, vicious.widgets.gmail, "${count} ${subject}", 37)
+
 -- }}}
 
 -- Create a systray
@@ -184,25 +207,27 @@ for s = 1, screen.count() do
                                           end, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s })
+	--mywibox[s] = awful.wibox({ position = "top", screen = s })
+	mywibox[s] = awful.wibox({ position = "top", height="16", fg=beautiful.fg_normal, bg=beautiful.bg_normal, screen = s })
     -- Add widgets to the wibox - order matters
-    mywibox[s].widgets = {
-        {
-            mylauncher,
-            mytaglist[s],
-            mypromptbox[s],
-            layout = awful.widget.layout.horizontal.leftright
-        },
-        mylayoutbox[s],
-        mytextclock,
-        s == 1 and mysystray or nil,
-		spacer, batwidget,
-		spacer, cpuwidget,
-		spacer, memwidgettext,
-		--memwidgetbar.widget,
-        mytasklist[s],
-        layout = awful.widget.layout.horizontal.rightleft
-    }
+	mywibox[s].widgets = {
+		{
+			mytaglist[s],
+			mypromptbox[s],
+			mylauncher,
+			layout = awful.widget.layout.horizontal.leftright
+		},
+		mylayoutbox[s],
+		spacer, date_widget, date_icon,
+		s == 1 and mysystray or nil,
+		spacer, up_icon, net_widget, down_icon,
+		spacer, mem_widget, mem_icon,
+		spacer, cpu_widget, cpu_icon,
+		spacer, bat_widget, bat_icon,
+		spacer, mail_widget, mail_icon,
+		mytasklist[s],
+		layout = awful.widget.layout.horizontal.rightleft
+	}
 end
 -- }}}
 
