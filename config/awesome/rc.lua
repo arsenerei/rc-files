@@ -243,7 +243,7 @@ root.buttons(awful.util.table.join(
 globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "h",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "l",  awful.tag.viewnext       ),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+    awful.key({ modkey,           }, "Tab", awful.tag.history.restore),
     awful.key({ modkey,           }, "w", function () scratch.drop("urxvtc", "center", "center", .5, .75) end),
 
     awful.key({ modkey,           }, "j",
@@ -264,7 +264,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end),
     awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
-    awful.key({ modkey,           }, "Tab",
+    awful.key({ modkey,           }, "Escape",
         function ()
             awful.client.focus.history.previous()
             if client.focus then
