@@ -19,7 +19,8 @@ beautiful.init(awful.util.getdir("config") .. "/zenburn.lua")
 -- This is used later as the default terminal and editor to run.
 terminal   = "urxvtc"
 browser    = "firefox"
-chat       = "pidgin"
+chat       = "irssi"
+chat_cmd   = terminal .. " -tn xterm-256color -T irssi -e " .. chat
 editor     = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -249,7 +250,7 @@ globalkeys = awful.util.table.join(
     -- Standard program
     awful.key({ modkey,           }, "t", function () awful.util.spawn(terminal) end),
     awful.key({ modkey,           }, "b", function () awful.util.spawn(browser) end),
-    awful.key({ modkey,           }, "c", function () awful.util.spawn(chat) end),
+    awful.key({ modkey,           }, "c", function () awful.util.spawn(chat_cmd) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
 
@@ -390,6 +391,10 @@ awful.rules.rules = {
 		rule = { class = "Vlc" },
 		properties = { tag = tags[1][5] },
 	},
+	{
+		rule = { name = "irssi" },
+		properties = { tag = tags[1][3] },
+	}
 }
 -- }}}
 
