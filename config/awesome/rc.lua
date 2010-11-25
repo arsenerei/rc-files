@@ -8,6 +8,7 @@ require("beautiful")
 require("naughty")
 -- Widget library
 require("vicious")
+require("scratch")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -215,6 +216,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "h",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "l",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+    awful.key({ modkey,           }, "w", function () scratch.drop("urxvtc", "center", "center", .5, .75) end),
 
     awful.key({ modkey,           }, "j",
         function ()
