@@ -17,7 +17,7 @@ require("scratch")
 beautiful.init(awful.util.getdir("config") .. "/zenburn.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal   = "urxvtc +sb"
+terminal   = "urxvtc"
 browser    = "firefox"
 chat       = "pidgin"
 editor     = os.getenv("EDITOR") or "vim"
