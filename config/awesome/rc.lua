@@ -48,8 +48,8 @@ default_layouts = {
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
 tags = {
-	names = { "terminal", "www", "chat", "music", "video" },
-	layouts = { awful.layout.suit.tile, awful.layout.suit.max, awful.layout.suit.tile, awful.layout.suit.tile, awful.layout.suit.tile },
+	names = { "terminal", "www", "chat", "media" },
+	layouts = { awful.layout.suit.tile, awful.layout.suit.max, awful.layout.suit.tile, awful.layout.suit.tile },
 }
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
@@ -400,7 +400,7 @@ awful.rules.rules = {
 	-- Set vlc to always map on tags number 5 of screen 1.
 	{
 		rule = { class = "Vlc" },
-		properties = { tag = tags[1][5] },
+		properties = { tag = tags[1][4] },
 	},
 	{
 		rule = { name = "irssi" },
