@@ -92,6 +92,9 @@ fi
 #alias l='ls -CF'
 
 
+# gpg key for signing and encryption
+export GPGKEY=A2B1E1AA
+
 # vim like key bindings on the command line
 set -o vi
 
