@@ -74,4 +74,19 @@ nnoremap <Leader>c :%s/\s\+$//<CR><C-L>
 " DiffGitCached is available in commits
 
 nnoremap <Leader>l :!pdflatex %<CR>
+nnoremap <silent> <Leader>s :silent setlocal spell! spelllang=en_us<CR>
+
+function ToggleSpellCheck()
+	let b:spell_check_on = exists('b:spell_check_on') ? !b:writing_mode_on : 1
+	if b:spell_check_on
+		silent setlocal spell! spelllang=en_US
+		"setlocal spell! spelllang=en_US
+		echo "SpellCheck ON"
+	else
+		silent setlocal nospell
+		"setlocal nospell
+		echo "SpellCheck OFF"
+	endif
+endfunction
+
 nnoremap <Leader>g :DiffGitCached<CR>
