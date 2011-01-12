@@ -90,3 +90,30 @@ function ToggleSpellCheck()
 endfunction
 
 nnoremap <Leader>g :DiffGitCached<CR>
+
+nnoremap <Leader>w :call ToggleWritingMode()<CR>
+
+function ToggleWritingMode()
+	let b:writing_mode_on = exists('b:writing_mode_on') ? !b:writing_mode_on : 1
+	if b:writing_mode_on
+		echo "WritingMode ON"
+		noremap <buffer> <silent> <Up> gk
+		noremap <buffer> <silent> <Down> gj
+		noremap <buffer> <silent> <Home> g<Home>
+		noremap <buffer> <silent> <End> g<End>
+		noremap <buffer> <silent> k gk
+		noremap <buffer> <silent> j gj
+		noremap <buffer> <silent> 0 g0
+		noremap <buffer> <silent> $ g$
+	else
+		echo "WritingMode OFF"
+		noremap <buffer> <silent> <Up> <Up>
+		noremap <buffer> <silent> <Down> <Down>
+		noremap <buffer> <silent> <Home> <Home>
+		noremap <buffer> <silent> <End> <End>
+		noremap <buffer> <silent> k k
+		noremap <buffer> <silent> j j
+		noremap <buffer> <silent> 0 0
+		noremap <buffer> <silent> $ $
+	endif
+endfunction
