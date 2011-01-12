@@ -72,4 +72,6 @@ nnoremap <Leader>c :%s/\s\+$//<CR><C-L>
 
 " git command
 " DiffGitCached is available in commits
+
+nnoremap <Leader>l :!pdflatex %<CR>
 nnoremap <Leader>g :DiffGitCached<CR>
