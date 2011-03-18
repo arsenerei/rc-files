@@ -69,6 +69,21 @@ set ttymouse=xterm2
 " code cleaning
 nnoremap <Leader>c :%s/\s\+$//<CR><C-L>
 
+" unmap annoying keys
+nnoremap q: <Nop>
+nnoremap q/ <Nop>
+nnoremap q? <Nop>
+
+" quicker window navigation
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+
+" quicker buffer navigation
+nnoremap <C-n> :next<CR>
+nnoremap <C-p> :prev<CR>
+
 
 " git command
 " DiffGitCached is available in commits
