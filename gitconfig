@@ -2,6 +2,9 @@
 	name = stestr8
 	email = stephon@hq.newdream.net
 
+[core]
+	editor = vim
+
 [alias]
 	ci = commit
 	co = checkout
