@@ -84,6 +84,10 @@ nnoremap <C-l> <C-w>l
 nnoremap <C-n> :next<CR>
 nnoremap <C-p> :prev<CR>
 
+" au commands
+if has('autocmd')
+	au BufEnter *muttrc setlocal filetype=muttrc
+endif
 
 " git command
 " DiffGitCached is available in commits
