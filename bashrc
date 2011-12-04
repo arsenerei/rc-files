@@ -14,6 +14,9 @@ export HISTCONTROL=ignoreboth
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+shopt -s cdspell
+shopt -s dirspell
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 
 # check the window size after each command and, if necessary,
@@ -98,13 +101,36 @@ export GPGKEY=A2B1E1AA
 # vim like key bindings on the command line
 set -o vi
 
-if [ -e /usr/share/terminfo/x/xterm-256color ]; then
-	export TERM='xterm-256color'
-elif [ -e /usr/share/terminfo/x/xterm-color ]; then
-	export TERM='xterm-color'
+if [[ $TERM == 'screen' ]]; then
+	export TERM='screen-256color'
+elif [ -e /usr/share/terminfo/r/rxvt-256color ]; then
+	export TERM='rxvt-256color'
+elif [ -e /usr/share/terminfo/r/rxvt-color ]; then
+	export TERM='rxvt-color'
 else
 	export TERM='xterm'
 fi
+
+export EDITOR='vim'
+
+# XDG configuration
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+# vim settings
+export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC"'
+
+# Less Colors for Man Pages
+#export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
+#export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
+#export LESS_TERMCAP_me=$'\E[0m'           # end mode
+#export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+#export LESS_TERMCAP_so=$'\E[38;5;246m'    # begin standout-mode - info box
+#export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+#export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+
+# RubyGems
+export PATH=/var/lib/gems/1.8/bin:$PATH
 
 function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ [\1]/'
