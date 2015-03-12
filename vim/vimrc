@@ -1,17 +1,47 @@
 " XDG Configuration ---------------------------------------------------------{{{
 " Following the XDG Base Directory Specification (thanks tlvince!)
-" Has to come before pathogen or else it won't work
+" Has to come before plugin logic or else it won't work
+set noswapfile
 set directory=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupdir=$XDG_CACHE_HOME/vim,~/,/tmp
+set backupskip=/tmp/*,/private/tmp/*  " stupid crontab
 set runtimepath=$XDG_CONFIG_HOME/vim,$VIM,$VIMRUNTIME,$XDG_CONFIG_HOME/vim/after
 let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
 let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 
 " }}}
-" Preamble          ---------------------------------------------------------{{{
+" Plugins           ---------------------------------------------------------{{{
 
-" Plugin management
-call pathogen#infect()
+call plug#begin()
+
+" Basic
+Plug 'wincent/Command-T', {'do': 'cd ruby/command-t && ruby extconf.rb && make'}
+Plug 'sjl/gundo.vim'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-fugitive'
+Plug 'othree/html5.vim'
+
+" Colorschemes
+Plug 'junegunn/seoul256.vim'
+
+" Clojure
+Plug 'tpope/vim-fireplace', {'for': 'clojure'}
+Plug 'guns/vim-clojure-static', {'for': 'clojure'}
+Plug 'guns/vim-clojure-highlight', {'for': 'clojure'}
+Plug 'tpope/vim-classpath', {'for': 'clojure'}
+Plug 'guns/vim-sexp', {'for': 'clojure'}
+Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for': 'clojure'}
+
+" Trials
+Plug 'junegunn/limelight.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'ap/vim-css-color'
+Plug 'jceb/vim-orgmode'
+Plug 'mileszs/ack.vim'
+
+call plug#end()
 
 syntax enable
 filetype on
@@ -28,12 +58,8 @@ set ruler
 set shiftround
 set hidden
 set backspace=indent,eol,start
-set number
-set showcmd
 set ignorecase
 set smartcase
-set splitbelow
-set splitright
 set autoindent
 set tabstop=4
 set softtabstop=4
@@ -44,6 +70,16 @@ set linebreak
 set textwidth=80
 set scrolloff=5 " no more scrolling from the bottom
 set laststatus=2
+set ttimeoutlen=0 " no more pause on ESC
+
+" Auto format paragraphs
+augroup markdown
+    autocmd!
+    autocmd FileType markdown setl fo+=a
+augroup END
+
+" MAC OS X ONLY -- Still?
+set clipboard=unnamed
 
 " Wildmenu completion {{{
 
@@ -64,48 +100,24 @@ set foldlevelstart=0
 
 " }}}
 
-set modelines=0
+" set modelines=0
 
 set list
-set listchars=tab:▸\ ,eol:¬,extends:❯,precedes:❮
-
-" horizontal and vertical bars
-set cursorline
-
-if exists('+colorcolumn')
-    set colorcolumn=+1
-endif
-
-" stop windows from resizing upon closing other windows
-set winfixwidth
-set winfixheight
+set listchars=tab:▸\ ,extends:❯,precedes:❮,trail:·
 
 " term colors
 if &t_Co > 255
     set t_Co=256
-    colorscheme zenburn
+    colorscheme seoul256
 else
     set t_Co=16
-    hi Search ctermbg=DarkGrey
-    hi LineNr ctermbg=Black
 endif
 
 " search formating
-" highlight search
 set hlsearch
-" incremental searching
 set incsearch
-" search highlighting
+" clear search highlight
 nnoremap <silent> <Space> :nohl<CR><C-L>
-
-set errorformat=%f:%l:%m
-
-syn sync minlines=50
-syn sync fromstart
-
-" mouse support
-set mouse=a
-set ttymouse=xterm2
 
 " }}}
 " Mappings          ---------------------------------------------------------{{{
@@ -113,14 +125,25 @@ set ttymouse=xterm2
 let mapleader=','
 let maplocalleader='\'
 
+let g:CommandTMatchWindowReverse=1
+
+function! Quasi()
+    if (!exists('*fireplace#ns'))
+        echom "Fireplace is not working in this buffer!"
+        return
+    endif
+    let ns = fireplace#ns()
+    vnew "Quasi"
+    setfiletype clojure
+    set buftype=nofile
+    call setbufvar("%", "fireplace_ns", ns)
+endfunction
+
+command! Q call Quasi()
+
 " easier vim editing
-nnoremap <Leader>ev :vsplit $MYVIMRC<CR>
-nnoremap <Leader>sv :source $MYVIMRC<CR>
-
-nnoremap <silent> <Leader>r  :resize 17<CR>
-"nnoremap <silent> <Leader>=  :resize =<CR>
-
-nnoremap <Leader>j :make<CR>
+nnoremap <silent> <Leader>ev :e $MYVIMRC<CR>
+nnoremap <silent> <Leader>sv :source $MYVIMRC<CR>
 
 " unmap annoying keys
 nnoremap q: <Nop>
@@ -130,53 +153,52 @@ nnoremap q? <Nop>
 nnoremap q; q:
 
 " quicker window navigation
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-h> <C-w>h
-nnoremap <C-l> <C-w>l
+nnoremap <silent> <C-j> <C-w>j
+nnoremap <silent> <C-k> <C-w>k
+nnoremap <silent> <C-h> <C-w>h
+nnoremap <silent> <C-l> <C-w>l
 
 " quicker buffer navigation
-nnoremap <C-n> :next<CR>
-nnoremap <C-p> :prev<CR>
+nnoremap <silent> <C-n> :next<CR>
+nnoremap <silent> <C-p> :prev<CR>
 
 " get the commandline more quickly
-nnoremap ; :
+noremap ; :
+noremap : ;
 
-nnoremap <Leader>l :!pdflatex %<CR>
 nnoremap <silent> <Leader>s :silent setlocal spell! spelllang=en_us<CR>
 
-" CommandT stuff
-nnoremap <silent> <Leader>q :CommandT<CR>
-let g:CommandTMatchWindowReverse=1
+" pandoc
+let g:pandoc_use_hard_wraps=1
 
-nnoremap <Leader>w :call ToggleWritingMode()<CR>
+" Goyo
+function! s:goyo_enter()
+    let b:quitting = 0
+    autocmd QuitPre <buffer> let b:quitting = 1
+    Limelight
+endfunction
 
-" }}}
-" Functions         ---------------------------------------------------------{{{
-
-function! ToggleWritingMode()
-    let b:writing_mode_on = exists('b:writing_mode_on') ? !b:writing_mode_on : 1
-    if b:writing_mode_on
-        echo "WritingMode ON"
-        noremap <buffer> <silent> <Up> gk
-        noremap <buffer> <silent> <Down> gj
-        noremap <buffer> <silent> <Home> g<Home>
-        noremap <buffer> <silent> <End> g<End>
-        noremap <buffer> <silent> k gk
-        noremap <buffer> <silent> j gj
-        noremap <buffer> <silent> 0 g0
-        noremap <buffer> <silent> $ g$
-    else
-        echo "WritingMode OFF"
-        noremap <buffer> <silent> <Up> <Up>
-        noremap <buffer> <silent> <Down> <Down>
-        noremap <buffer> <silent> <Home> <Home>
-        noremap <buffer> <silent> <End> <End>
-        noremap <buffer> <silent> k k
-        noremap <buffer> <silent> j j
-        noremap <buffer> <silent> 0 0
-        noremap <buffer> <silent> $ $
+function! s:goyo_leave()
+    Limelight!
+    " Quit Vim if this is the only remaining buffer
+    if b:quitting && len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) == 1
+        qa
     endif
 endfunction
+
+let g:goyo_callbacks = [function('s:goyo_enter'), function('s:goyo_leave')]
+
+" lightline
+"let g:lightline = {'colorscheme': 'seoul256'}
+let g:lightline = {
+      \ 'component': {
+      \   'readonly': '%{&filetype=="help"?"":&readonly?"RO":""}',
+      \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}'
+      \ },
+      \ 'component_visible_condition': {
+      \   'readonly': '(&filetype!="help"&& &readonly)',
+      \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))'
+      \ }
+      \ }
 
 " }}}
