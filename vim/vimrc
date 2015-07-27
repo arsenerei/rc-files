@@ -6,6 +6,7 @@ set directory=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupdir=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupskip=/tmp/*,/private/tmp/*  " stupid crontab
 set runtimepath=$XDG_CONFIG_HOME/vim,$VIM,$VIMRUNTIME,$XDG_CONFIG_HOME/vim/after
+set rtp+=/usr/local/Cellar/fzf/0.10.0 " trial for fzfness
 let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
 let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 
@@ -16,18 +17,18 @@ call plug#begin()
 
 " Basic
 Plug 'wincent/Command-T', {'do': 'cd ruby/command-t && ruby extconf.rb && make'}
-Plug 'sjl/gundo.vim'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-commentary'
+" Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
 Plug 'tommcdo/vim-exchange'
-Plug 'othree/html5.vim'
 Plug 'sjl/gundo.vim'
 Plug 'vim-scripts/Align', {'on': 'Align'}
+Plug 'othree/html5.vim'
 Plug 'jceb/vim-orgmode'
+Plug 'tpope/vim-capslock'
 
 " Colorschemes
 Plug 'junegunn/seoul256.vim'
@@ -45,6 +46,13 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'mileszs/ack.vim'
 Plug 'stefandtw/quickfix-reflector.vim'
+
+Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'ehamberg/vim-cute-python'
+Plug 'honza/vim-clojure-conceal'
+Plug 'wellle/targets.vim'
+Plug 'vim-scripts/diffchar.vim'
+Plug 'arsenerei/vim-easymotion'
 
 call plug#end()
 
@@ -72,6 +80,7 @@ set shiftwidth=4
 set shiftround
 set wrap
 set linebreak
+set showbreak=+
 set textwidth=80
 set scrolloff=5
 set laststatus=2
@@ -92,6 +101,10 @@ if &t_Co > 255
     colorscheme seoul256
 else
     set t_Co=16
+endif
+
+if v:version > 703 || v:version == 703 && has("patch541")
+  set formatoptions+=j " Delete comment character when joining commented lines
 endif
 
 " Auto format paragraphs
@@ -165,16 +178,17 @@ augroup END
 
 " FIXME: work in progress to visual differentiate long lines. I'm aiming for a
 " visually quieter editor. (e.g., set nonumber noruler)
-" highlight OverLength term=reverse ctermbg=236 guibg=#3F3F3F
-" match OverLength '\%81v.'
 " augroup MyError
 "     autocmd!
-"     " autocmd BufWinEnter * let w:m2=matchadd('OverLength', '\%>80v.\', -1)
+"     highlight OverLength term=reverse ctermbg=236 guibg=#3F3F3F
+"     " combine with execute and &textwidth to determine OverLength position
+"     autocmd BufWinEnter * let w:m1=matchadd('OverLength', '\%80v.', +1)
 " augroup END
 
 " }}}
 " Plugin options    ---------------------------------------------------------{{{
 
+let g:EasyMotion_display_jump_message = 0
 let g:pandoc_use_hard_wraps=1
 
 " Not sure if I want to keep this, the default is 100, but I wrote something
@@ -213,5 +227,71 @@ function! Quasi()
 endfunction
 
 command! Q call Quasi()
+
+nnoremap <silent> <Leader>t :FZF<CR>
+
+function! s:buflist()
+  redir => ls
+  silent ls
+  redir END
+  return split(ls, '\n')
+endfunction
+
+function! s:bufopen(e)
+  execute 'buffer' matchstr(a:e, '^[ 0-9]*')
+endfunction
+
+nnoremap <silent> <Leader>b :call fzf#run({
+\   'source':  reverse(<sid>buflist()),
+\   'sink':    function('<sid>bufopen'),
+\   'options': '+m',
+\   'down':    len(<sid>buflist()) + 2
+\ })<CR>
+
+cnoremap <silent> <c-l> <c-\>eGetCompletions()<cr>
+"add an extra <cr> at the end of this line to automatically accept the fzf-selected completions.
+
+function! Lister()
+    call extend(g:FZF_Cmd_Completion_Pre_List,split(getcmdline(),'\(\\\zs\)\@<!\& '))
+endfunction
+
+function! CmdLineDirComplete(prefix, options, rawdir)
+    let l:dirprefix = matchstr(a:rawdir,"^.*/")
+    if isdirectory(expand(l:dirprefix))
+        return join(a:prefix + map(fzf#run({
+                    \'options': a:options . ' --select-1  --query=' .
+                    \ a:rawdir[matchend(a:rawdir,"^.*/"):len(a:rawdir)], 
+                    \'dir': expand(l:dirprefix)
+                    \}), 
+                    \'"' . escape(l:dirprefix, " ") . '" . escape(v:val, " ")'))
+    else
+        return join(a:prefix + map(fzf#run({
+                    \'options': a:options . ' --query='. a:rawdir }),
+                    \'escape(v:val, " ")')) 
+        "dropped --select-1 to speed things up on a long query
+endfunction
+
+function! GetCompletions()
+    let g:FZF_Cmd_Completion_Pre_List = []
+    let l:cmdline_list = split(getcmdline(), '\(\\\zs\)\@<!\& ', 1)
+    let l:Prefix = l:cmdline_list[0:-2]
+    execute "silent normal! :" . getcmdline() . "\<c-a>\<c-\>eLister()\<cr>\<c-c>"
+    let l:FZF_Cmd_Completion_List = g:FZF_Cmd_Completion_Pre_List[len(l:Prefix):-1]
+    unlet g:FZF_Cmd_Completion_Pre_List
+    if len(l:Prefix) > 0 && l:Prefix[0] =~
+                \ '^ed\=i\=t\=$\|^spl\=i\=t\=$\|^tabed\=i\=t\=$\|^arged\=i\=t\=$\|^vsp\=l\=i\=t\=$'
+                "single-argument file commands
+        return CmdLineDirComplete(l:Prefix, "",l:cmdline_list[-1])
+    elseif len(l:Prefix) > 0 && l:Prefix[0] =~ 
+                \ '^arg\=s\=$\|^ne\=x\=t\=$\|^sne\=x\=t\=$\|^argad\=d\=$'  
+                "multi-argument file commands
+        return CmdLineDirComplete(l:Prefix, '--multi', l:cmdline_list[-1])
+    else 
+        return join(l:Prefix + fzf#run({
+                    \'source':l:FZF_Cmd_Completion_List, 
+                    \'options': '--select-1 --query='.shellescape(l:cmdline_list[-1])
+                    \})) 
+    endif
+endfunction
 
 " }}}
