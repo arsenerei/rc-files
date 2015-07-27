@@ -7,15 +7,14 @@
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # don't overwrite GNU Midnight Commander's setting of `ignorespace'.
-export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+#export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
 # ... or force ignoredups and ignorespace
 export HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
-
 shopt -s cdspell
-shopt -s dirspell
+#shopt -s dirspell
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 
@@ -103,22 +102,31 @@ set -o vi
 
 if [[ $TERM == 'screen' ]]; then
 	export TERM='screen-256color'
+elif [[ $TERM == 'screen-256color' ]]; then
+	export TERM='screen-256color'
 elif [ -e /usr/share/terminfo/r/rxvt-256color ]; then
 	export TERM='rxvt-256color'
 elif [ -e /usr/share/terminfo/r/rxvt-color ]; then
 	export TERM='rxvt-color'
 else
-	export TERM='xterm'
+	#export TERM='xterm'
+    # MAC OS X (ONLY)
+    export TERM='xterm-256color'
 fi
+
 
 export EDITOR='vim'
 
 # XDG configuration
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
 
 # vim settings
 export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC"'
+
+
+alias mutt='mutt -F $XDG_CONFIG_HOME/mutt/muttrc'
 
 # Less Colors for Man Pages
 #export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
@@ -129,8 +137,8 @@ export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC"'
 #export LESS_TERMCAP_ue=$'\E[0m'           # end underline
 #export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 
-# RubyGems
-export PATH=/var/lib/gems/1.8/bin:$PATH
+export GOPATH=$HOME/gocode
+export PATH=/usr/local/bin:/usr/local/sbin:$PATH
 
 function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ [\1]/'
@@ -152,10 +160,68 @@ PS4='+ '
 }
 proml
 
+alias dl='curl -O'
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
+brew_home=/usr/local
+if [ -f $brew_home/etc/bash_completion ]; then
+    source $brew_home/etc/bash_completion
 fi
+
+PATH=$PATH:$HOME/bin      # Custom scripts
+# PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+[[ -s $brew_home/etc/profile.d/autojump.sh ]] && source $brew_home/etc/profile.d/autojump.sh
+
+# TODO: I should really get a .bash.local or something...
+profile_vim() { vim --startuptime profile-$(date +%s).vim +q; }
+alias profile-vim=profile_vim
+
+function calc() { bc -l <<< $@; }
+
+# fzf-related tasks
+export FZF_DEFAULT_OPTS=--extended
+
+# fe [FUZZY PATTERN] - Open the selected file with the default editor
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+fe() {
+    local file
+    file=$(fzf --query="$1" --select-1 --exit-0)
+    [[ -f $file ]] && ${EDITOR:-vim} "$file"
+}
+
+# fkill - kill process
+fkill() {
+    local pid
+    pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+
+    if [[ -n $pid ]]; then
+        kill -${1:-9} $pid
+    fi
+}
+
+# fs [FUZZY PATTERN] - Select selected tmux session
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+fs() {
+    local session
+    session=$(tmux list-sessions -F "#{session_name}" | \
+        fzf --query="$1" --select-1 --exit-0) &&
+        tmux switch-client -t "$session"
+}
+
+
+# fshow - git commit browser
+fshow() {
+    local out sha q
+    while out=$(
+        git log --graph --color=always \
+            --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+        fzf --ansi --multi --no-sort --reverse --query="$q" --print-query); do
+        q=$(head -1 <<< "$out")
+        while read sha; do
+            git show --color=always $sha | less -R
+        done < <(sed '1d;s/^[^a-z0-9]*//;/^$/d' <<< "$out" | awk '{print $1}')
+    done
+}
