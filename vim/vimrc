@@ -170,6 +170,9 @@ nmap <leader>c  <Plug>Commentary
 omap <leader>c  <Plug>Commentary
 nmap <leader>cc <Plug>CommentaryLine
 
+" Equal up splits
+autocmd VimResized * wincmd =
+
 augroup MySyntax
     autocmd!
     autocmd BufRead,BufNewFile *.edn.*,*.pxi setfiletype clojure
@@ -210,7 +213,11 @@ function! s:goyo_leave()
     endif
 endfunction
 
-let g:goyo_callbacks = [function('s:goyo_enter'), function('s:goyo_leave')]
+augroup GoyoUser
+    autocmd!
+    autocmd User GoyoEnter nested call <SID>goyo_enter()
+    autocmd User GoyoLeave nested call <SID>goyo_leave()
+augroup END
 
 let g:CommandTMatchWindowReverse=1
 
