@@ -6,7 +6,7 @@ set directory=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupdir=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupskip=/tmp/*,/private/tmp/*  " stupid crontab
 set runtimepath=$XDG_CONFIG_HOME/vim,$VIM,$VIMRUNTIME,$XDG_CONFIG_HOME/vim/after
-set rtp+=/usr/local/Cellar/fzf/0.10.0 " trial for fzfness
+set rtp+=/usr/local/opt/fzf
 let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
 let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 
@@ -16,19 +16,28 @@ let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 call plug#begin()
 
 " Basic
-Plug 'wincent/Command-T', {'do': 'cd ruby/command-t && ruby extconf.rb && make'}
+Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
+" Plug 'tomtom/tcomment_vim'
 " Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
-Plug 'tommcdo/vim-exchange'
-Plug 'sjl/gundo.vim'
-Plug 'vim-scripts/Align', {'on': 'Align'}
-Plug 'othree/html5.vim'
-Plug 'jceb/vim-orgmode'
 Plug 'tpope/vim-capslock'
+Plug 'tommcdo/vim-exchange'
+Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'sjl/gundo.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'junegunn/vim-easy-align'
+Plug 'vimwiki/vimwiki'
+Plug 'justinmk/vim-sneak'
+" FIXME: Commented out to prevent flickering cursor.
+" Plug 'Raimondi/delimitMate' " Must be loaded *before* vim-endwise
+" Plug 'tpope/vim-endwise'
+Plug 'othree/html5.vim'
+Plug 'elzr/vim-json'
 
 " Colorschemes
 Plug 'junegunn/seoul256.vim'
@@ -36,23 +45,22 @@ Plug 'junegunn/seoul256.vim'
 " Clojure
 Plug 'tpope/vim-fireplace', {'for': 'clojure'}
 Plug 'guns/vim-clojure-static', {'for': 'clojure'}
-Plug 'guns/vim-clojure-highlight', {'for': 'clojure'}
-Plug 'tpope/vim-classpath', {'for': 'clojure'}
+" Plug 'guns/vim-clojure-highlight', {'for': 'clojure'}
+" Plug 'tpope/vim-classpath', {'for': 'clojure'}
 Plug 'guns/vim-sexp', {'for': 'clojure'}
 Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for': 'clojure'}
 
 " Trials
-Plug 'junegunn/goyo.vim'
-Plug 'junegunn/limelight.vim'
 Plug 'mileszs/ack.vim'
 Plug 'stefandtw/quickfix-reflector.vim'
-
-Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'mattn/emmet-vim'
+Plug 'jceb/vim-orgmode'
 Plug 'ehamberg/vim-cute-python'
-Plug 'honza/vim-clojure-conceal'
-Plug 'wellle/targets.vim'
-Plug 'vim-scripts/diffchar.vim'
-Plug 'arsenerei/vim-easymotion'
+" Plug 'honza/vim-clojure-conceal'
+" Plug 'vim-scripts/diffchar.vim' " Nice, but overwrite ]e
+Plug 'jelera/vim-javascript-syntax'
+Plug 'rust-lang/rust.vim'
+Plug 'cespare/vim-toml'
 
 call plug#end()
 
@@ -67,6 +75,7 @@ filetype indent on
 set nocompatible
 set viminfo+=n$XDG_CACHE_HOME/vim/viminfo " has to be after nocompatible
 set backspace=indent,eol,start
+" set hlsearch
 set incsearch
 set showcmd
 set hidden
@@ -80,12 +89,13 @@ set shiftwidth=4
 set shiftround
 set wrap
 set linebreak
-set showbreak=+
+set showbreak=\ +
+set breakindent " Check feature
 set textwidth=80
 set scrolloff=5
 set laststatus=2
 set ttimeoutlen=0 " no more pause on ESC
-set list
+set nolist
 set listchars=tab:▸\ ,extends:❯,precedes:❮,trail:·
 set clipboard=unnamed
 set foldlevelstart=0
@@ -99,6 +109,17 @@ set lazyredraw
 if &t_Co > 255
     set t_Co=256
     colorscheme seoul256
+    set bg=light
+    " FIXME: Try this out to see if I like it. I want to play around with a
+    " lower contrast color on the status line.
+    " Note: For some reason the original value is cterm=bold,reverse. I don't
+    " know why junegunn decided on reverse.
+    hi StatusLine ctermfg=248
+    hi StatusLine ctermbg=000
+
+    " FIXME: Playing around with italics, but need to test this. I can guarantee
+    " it's not always working. Look at the I and t in this paragraph...
+    highlight Comment cterm=italic
 else
     set t_Co=16
 endif
@@ -117,8 +138,11 @@ endif
 "     autocmd FileType markdown setl fo+=a
 " augroup END
 
+runtime macros/matchit.vim
+
 " Wildmenu completion {{{
 
+set wildmode=longest,list,full
 set wildmenu
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
@@ -137,9 +161,14 @@ set wildignore+=*.pyc                            " python bytecode
 let mapleader=','
 let maplocalleader='\'
 
-noremap Y y$
+noremap <silent> Y y$
 
+nnoremap <silent> gb :b#<CR>
 nnoremap <silent> <Space> :nohlsearch<CR><C-L>
+
+" iTerm only. Allows S-CR to work, but you must set the 'send text' in
+" preferences. Cf: http://stackoverflow.com/a/12117076
+imap ✠ <S-CR>
 
 " easier vim editing
 nnoremap <silent> <Leader>ev :e $MYVIMRC<CR>
@@ -155,7 +184,9 @@ nnoremap <silent> <C-l> <C-w>l
 
 " get the commandline quickly
 noremap ; :
-noremap : ;
+" I'm playing with vim-sneak at the moment
+" noremap : ;
+map : <Plug>SneakNext
 
 " Command-line
 cnoremap <C-A> <Home>
@@ -164,19 +195,37 @@ cnoremap <C-K> <C-U>
 cnoremap <C-P> <Up>
 cnoremap <C-N> <Down>
 
+" FZF
+nnoremap <silent> ,t :Files<CR>
+nnoremap <silent> ,b :Buffers<CR>
+
 " gc is slower and harder to type
 xmap <leader>c  <Plug>Commentary
 nmap <leader>c  <Plug>Commentary
 omap <leader>c  <Plug>Commentary
 nmap <leader>cc <Plug>CommentaryLine
 
+" Swap words using exchange
+" TODO: Test inside a Clojure file
+nnoremap <silent> >e :norm cxew.<CR>
+nnoremap <silent> <e :norm cxeb.<CR>
+
 " Equal up splits
-autocmd VimResized * wincmd =
+autocmd! VimResized * wincmd =
 
 augroup MySyntax
     autocmd!
-    autocmd BufRead,BufNewFile *.edn.*,*.pxi setfiletype clojure
+    " Note: setfiletype will only set the filetype if it hasn't already been
+    " set. *.boot was set as conf, but in general, I know we want all of these
+    " to be clojure
+    " autocmd BufRead,BufNewFile *.edn.*,*.pxi,*.boot setfiletype clojure
+    autocmd BufRead,BufNewFile *.edn.*,*.pxi,*.boot set filetype=clojure
     autocmd FileType vim setlocal keywordprg=:help
+augroup END
+
+augroup Clojure
+    autocmd!
+    autocmd FileType clojure setlocal wildignore+=target
 augroup END
 
 " FIXME: work in progress to visual differentiate long lines. I'm aiming for a
@@ -194,6 +243,23 @@ augroup END
 let g:EasyMotion_display_jump_message = 0
 let g:pandoc_use_hard_wraps=1
 
+" DelimitMate
+let delimitMate_offByDefault = 0
+let delimitMate_expand_cr = 1
+
+" TODO: A lot of these wil show up on lisp vs non-lisp. It will make sense to
+" refactor this later.
+augroup delimitMate
+    autocmd! FileType clojure let b:delimitMate_expand_cr = 0
+
+    " FIXME: This still doesn't work
+    " Setting this explicitly on the command line and then e! the file works
+    " FIXME: Why doesn't it work with FileType?
+    autocmd! BufNewFile,BufRead *.rs let delimitMate_quotes = "\" `"
+    " autocmd! BufNewFile,BufRead *.rs let b:delimitMate_quotes = "\" `"
+    " autocmd! FileType rust let delimitMate_quotes = "\" `"
+augroup END
+
 " Not sure if I want to keep this, the default is 100, but I wrote something
 " that was nearly double that.
 let g:clojure_maxlines = 200
@@ -201,11 +267,15 @@ let g:clojure_maxlines = 200
 " Goyo
 function! s:goyo_enter()
     let b:quitting = 0
-    autocmd QuitPre <buffer> let b:quitting = 1
+    autocmd! QuitPre <buffer> let b:quitting = 1
+    set noshowcmd
+    set noshowmode
     Limelight
 endfunction
 
 function! s:goyo_leave()
+    set showmode
+    set showcmd
     Limelight!
     " Quit Vim if this is the only remaining buffer
     if b:quitting && len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) == 1
@@ -221,84 +291,36 @@ augroup END
 
 let g:CommandTMatchWindowReverse=1
 
-function! Quasi()
-    if (!exists('*fireplace#ns'))
-        echom "Fireplace is not working in this buffer!"
-        return
-    endif
-    let ns = fireplace#ns()
-    vnew "Quasi"
-    setfiletype clojure
-    set buftype=nofile
-    call setbufvar("%", "fireplace_ns", ns)
-endfunction
-
-command! Q call Quasi()
-
-nnoremap <silent> <Leader>t :FZF<CR>
-
-function! s:buflist()
-  redir => ls
-  silent ls
-  redir END
-  return split(ls, '\n')
-endfunction
-
-function! s:bufopen(e)
-  execute 'buffer' matchstr(a:e, '^[ 0-9]*')
-endfunction
-
-nnoremap <silent> <Leader>b :call fzf#run({
-\   'source':  reverse(<sid>buflist()),
-\   'sink':    function('<sid>bufopen'),
-\   'options': '+m',
-\   'down':    len(<sid>buflist()) + 2
-\ })<CR>
-
-cnoremap <silent> <c-l> <c-\>eGetCompletions()<cr>
-"add an extra <cr> at the end of this line to automatically accept the fzf-selected completions.
-
-function! Lister()
-    call extend(g:FZF_Cmd_Completion_Pre_List,split(getcmdline(),'\(\\\zs\)\@<!\& '))
-endfunction
-
-function! CmdLineDirComplete(prefix, options, rawdir)
-    let l:dirprefix = matchstr(a:rawdir,"^.*/")
-    if isdirectory(expand(l:dirprefix))
-        return join(a:prefix + map(fzf#run({
-                    \'options': a:options . ' --select-1  --query=' .
-                    \ a:rawdir[matchend(a:rawdir,"^.*/"):len(a:rawdir)], 
-                    \'dir': expand(l:dirprefix)
-                    \}), 
-                    \'"' . escape(l:dirprefix, " ") . '" . escape(v:val, " ")'))
-    else
-        return join(a:prefix + map(fzf#run({
-                    \'options': a:options . ' --query='. a:rawdir }),
-                    \'escape(v:val, " ")')) 
-        "dropped --select-1 to speed things up on a long query
-endfunction
-
-function! GetCompletions()
-    let g:FZF_Cmd_Completion_Pre_List = []
-    let l:cmdline_list = split(getcmdline(), '\(\\\zs\)\@<!\& ', 1)
-    let l:Prefix = l:cmdline_list[0:-2]
-    execute "silent normal! :" . getcmdline() . "\<c-a>\<c-\>eLister()\<cr>\<c-c>"
-    let l:FZF_Cmd_Completion_List = g:FZF_Cmd_Completion_Pre_List[len(l:Prefix):-1]
-    unlet g:FZF_Cmd_Completion_Pre_List
-    if len(l:Prefix) > 0 && l:Prefix[0] =~
-                \ '^ed\=i\=t\=$\|^spl\=i\=t\=$\|^tabed\=i\=t\=$\|^arged\=i\=t\=$\|^vsp\=l\=i\=t\=$'
-                "single-argument file commands
-        return CmdLineDirComplete(l:Prefix, "",l:cmdline_list[-1])
-    elseif len(l:Prefix) > 0 && l:Prefix[0] =~ 
-                \ '^arg\=s\=$\|^ne\=x\=t\=$\|^sne\=x\=t\=$\|^argad\=d\=$'  
-                "multi-argument file commands
-        return CmdLineDirComplete(l:Prefix, '--multi', l:cmdline_list[-1])
-    else 
-        return join(l:Prefix + fzf#run({
-                    \'source':l:FZF_Cmd_Completion_List, 
-                    \'options': '--select-1 --query='.shellescape(l:cmdline_list[-1])
-                    \})) 
-    endif
-endfunction
-
 " }}}
+
+let s:local_vimrc = expand($MYVIMRC) . '.local'
+if filereadable(s:local_vimrc)
+    execute 'source' s:local_vimrc
+endif
+
+function! SyntaxItem()
+    return synIDattr(synID(line("."),col("."),1),"name")
+endfunction
+
+" nmap <leader>ss :echo SyntaxItem()
+" nmap <leader>ss :set statusline=%f\ %{SyntaxItem()}<CR>
+" noremap <leader>ss i :set statusline=%f<CR>
+" set statusline=%f\ %{SyntaxItem()}
+
+" FIXME: There's something wrong with the cursor when entering a newline,
+" backspacing or writing either a ' or a ". I suspect some plugin briefly
+" switches from insert to normal mode and then back again. This flickering of
+" the cursor from vertical bar to block makes using this technique unteneable
+" for me at this time. I'm trying to reduce visual noise, not make it more
+" prominent.
+" From: https://gist.github.com/andyfowler/1195581
+let insert_mode="\<Esc>]50;CursorShape=1\x7"
+let normal_mode="\<Esc>]50;CursorShape=2\x7"
+if exists('$TMUX')
+    let &t_SI = "\<Esc>Ptmux;\<Esc>" . insert_mode . "\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>" . normal_mode . "\<Esc>\\"
+else
+    let &t_SI = insert_mode
+    let &t_EI = normal_mode
+endif
+
