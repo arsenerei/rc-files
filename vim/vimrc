@@ -16,6 +16,7 @@ let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 call plug#begin()
 
 " Basic
+Plug 'junegunn/fzf' " This is here because I can't seem to find something that works in Arch Linux the it does on OS X
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
@@ -49,6 +50,7 @@ Plug 'guns/vim-clojure-static', {'for': 'clojure'}
 " Plug 'tpope/vim-classpath', {'for': 'clojure'}
 Plug 'guns/vim-sexp', {'for': 'clojure'}
 Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for': 'clojure'}
+Plug '~/github/vim-sayid'
 
 " Trials
 Plug 'mileszs/ack.vim'
@@ -61,6 +63,10 @@ Plug 'ehamberg/vim-cute-python'
 Plug 'jelera/vim-javascript-syntax'
 Plug 'rust-lang/rust.vim'
 Plug 'cespare/vim-toml'
+Plug 'kovetskiy/sxhkd-vim'
+Plug 'reedes/vim-pencil'
+" Plug 'mtth/scratch.vim'
+Plug 'clojure-vim/vim-cider'
 
 call plug#end()
 
@@ -96,7 +102,9 @@ set scrolloff=5
 set laststatus=2
 set ttimeoutlen=0 " no more pause on ESC
 set nolist
+set noruler
 set listchars=tab:▸\ ,extends:❯,precedes:❮,trail:·
+set fillchars=vert:\ ,fold:-
 set clipboard=unnamed
 set foldlevelstart=0
 set foldmethod=marker
@@ -104,22 +112,38 @@ set display=lastline
 
 " trial
 set lazyredraw
+set completeopt+=noinsert " don't choose a text by default
+set completeopt-=preview  " no preview window
+
+function! s:color_specifics()
+    " FIXME: Try this out to see if I like it. I want to play around with a
+    " lower contrast color on the status line.
+    " Note: For some reason the original value is cterm=bold,reverse. I don't
+    " know why junegunn decided on reverse.
+
+    " For bg=light
+    " highlight StatusLine ctermfg=248 ctermbg=000
+
+    " For bg=dark
+    " highlight StatusLine ctermfg=000 ctermbg=248 
+    highlight StatusLine ctermfg=000
+    highlight VertSplit ctermfg=239 ctermbg=187
+
+    " FIXME: Playing around with italics, but need to test this. I can guarantee
+    " it's not always working. Look at the I and t in this paragraph...
+    highlight Comment cterm=italic
+endfunction
+
+augroup UserColors
+    autocmd!
+    autocmd ColorScheme seoul256 call s:color_specifics()
+augroup END 
 
 " term colors
 if &t_Co > 255
     set t_Co=256
     colorscheme seoul256
-    set bg=light
-    " FIXME: Try this out to see if I like it. I want to play around with a
-    " lower contrast color on the status line.
-    " Note: For some reason the original value is cterm=bold,reverse. I don't
-    " know why junegunn decided on reverse.
-    hi StatusLine ctermfg=248
-    hi StatusLine ctermbg=000
-
-    " FIXME: Playing around with italics, but need to test this. I can guarantee
-    " it's not always working. Look at the I and t in this paragraph...
-    highlight Comment cterm=italic
+    set background=dark
 else
     set t_Co=16
 endif
@@ -228,6 +252,12 @@ augroup Clojure
     autocmd FileType clojure setlocal wildignore+=target
 augroup END
 
+augroup pencil
+    autocmd!
+    autocmd FileType markdown call pencil#init()
+    autocmd FileType text call pencil#init()
+augroup END
+
 " FIXME: work in progress to visual differentiate long lines. I'm aiming for a
 " visually quieter editor. (e.g., set nonumber noruler)
 " augroup MyError
@@ -255,8 +285,7 @@ augroup delimitMate
     " FIXME: This still doesn't work
     " Setting this explicitly on the command line and then e! the file works
     " FIXME: Why doesn't it work with FileType?
-    autocmd! BufNewFile,BufRead *.rs let delimitMate_quotes = "\" `"
-    " autocmd! BufNewFile,BufRead *.rs let b:delimitMate_quotes = "\" `"
+    autocmd! BufNewFile,BufRead *.rs let delimitMate_quotes = "\" `" autocmd! BufNewFile,BufRead *.rs let b:delimitMate_quotes = "\" `"
     " autocmd! FileType rust let delimitMate_quotes = "\" `"
 augroup END
 
@@ -264,16 +293,29 @@ augroup END
 " that was nearly double that.
 let g:clojure_maxlines = 200
 
+" augroup clojure
+"     autocmd!
+"     autocmd CompleteDone *.clj pclose
+" augroup END
+
+" Clojure
+" Connect to CLJS REPL
+" Remember to :Connect <figwheel-port> first
+" TODO: command! Fig which does both of these and defaults to 7002
+command! PC Piggieback (figwheel-sidecar.repl-api/repl-env)
+
 " Goyo
 function! s:goyo_enter()
     let b:quitting = 0
     autocmd! QuitPre <buffer> let b:quitting = 1
     set noshowcmd
     set noshowmode
+    set scrolloff=999
     Limelight
 endfunction
 
 function! s:goyo_leave()
+    set scrolloff=5
     set showmode
     set showcmd
     Limelight!
@@ -298,29 +340,23 @@ if filereadable(s:local_vimrc)
     execute 'source' s:local_vimrc
 endif
 
-function! SyntaxItem()
-    return synIDattr(synID(line("."),col("."),1),"name")
-endfunction
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
 
-" nmap <leader>ss :echo SyntaxItem()
-" nmap <leader>ss :set statusline=%f\ %{SyntaxItem()}<CR>
-" noremap <leader>ss i :set statusline=%f<CR>
+nnoremap <leader>g :Rg 
+
+imap <c-x><c-f> <plug>(fzf-complete-path)
+
+" NOTE: uncomment when you want to do syntax checking
+" function! SyntaxItem()
+"     return synIDattr(synID(line("."),col("."),1),"name")
+" endfunction
+" nnoremap <leader>ss :echo SyntaxItem()
 " set statusline=%f\ %{SyntaxItem()}
 
-" FIXME: There's something wrong with the cursor when entering a newline,
-" backspacing or writing either a ' or a ". I suspect some plugin briefly
-" switches from insert to normal mode and then back again. This flickering of
-" the cursor from vertical bar to block makes using this technique unteneable
-" for me at this time. I'm trying to reduce visual noise, not make it more
-" prominent.
-" From: https://gist.github.com/andyfowler/1195581
-let insert_mode="\<Esc>]50;CursorShape=1\x7"
-let normal_mode="\<Esc>]50;CursorShape=2\x7"
-if exists('$TMUX')
-    let &t_SI = "\<Esc>Ptmux;\<Esc>" . insert_mode . "\<Esc>\\"
-    let &t_EI = "\<Esc>Ptmux;\<Esc>" . normal_mode . "\<Esc>\\"
-else
-    let &t_SI = insert_mode
-    let &t_EI = normal_mode
-endif
-
+" nmap <leader>ss :set statusline=%f\ %{SyntaxItem()}<CR>
+" noremap <leader>ss i :set statusline=%f<CR>
