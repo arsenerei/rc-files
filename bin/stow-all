@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+PROGRAMS=(bash boot bspwm fontconfig git inputrc leiningen sxhkd tmux vim x)
+
+for program in ${PROGRAMS[@]}; do
+  echo "Configuring $program"
+  stow $program
+done
+
+echo "Done!"
