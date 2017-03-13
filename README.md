@@ -5,7 +5,7 @@ systems.
 
 # Stow
 
-I'm following [stow-guide][this guide] to make installing my configuration files
+I'm following [this guide][stow-guide] to make installing my configuration files
 a cinch. `stow bspwm` will install the configuration files necessary for bspwm.
 `stow -D bspwm` will uninstall them.
 
