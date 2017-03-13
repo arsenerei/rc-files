@@ -1,0 +1,47 @@
+! urxvt
+URxvt*loginShell: true
+URxvt*scrollBar: false
+/* URxvt*saveLines: 32767 */
+/* https://www.reddit.com/r/urxvt/comments/35x03n/if_youve_been_vexed_by_urxvts_picture_insert_mode/ */
+/* URxvt*iso14755: false */
+/* Pretty sure I don't need termName */
+/* URxvt.termName: rxvt-unicode-256color */
+URxvt.font: xft:Source Code Pro:size=12,xft:Symbola:regular:size=9
+URxvt.boldFont: xft:Source Code Pro:bold:size=12,xft:Symbola:bold:size=9
+URxvt.perl-ext-common: default,matcher,clipboard,url-select,keyboard-select,resize-font
+URxvt.url-select.launcher: firefox
+URxvt.url-select.underline: true
+URxvt.matcher.button: 3
+URxvt.keysym.Shift-Control-c: perl:clipboard:copy
+URxvt.keysym.Shift-Control-v: perl:clipboard:paste
+URxvt.keysym.M-u: perl:url-select:select_next
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+URxvt.keysym.M-s: perl:keyboard-select:search
+URxvt.resize-font.smaller: C-Down
+URxvt.resize-font.bigger: C-Up
+
+Xft.autohint: 0
+Xft.lcdfilter: lcdddefault
+Xft.hintstyle: hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+! rofi
+rofi.terminal: urxvtc
+rofi.separator-style: solid
+rofi.lines: 10
+rofi.hide-scrollbar: true
+rofi.color-normal: #3a3a3a, #d0d0d0, #3a3a3a, #4e4e4e, #e4e4e4
+rofi.color-window: #3a3a3a, #000000
+
+! yeahconsole
+yeahconsole*term: urxvtc
+yeahconsole*consoleHeight: 15
+yeahconsole*handleWidth: 0
+yeahconsole*aniDelay: 0
+yeahconsole*toggleKey: Alt+e
+yeahconsole*keyBigger: ControlAlt+e
+yeahconsole*keySmaller: ControlAltShift+e
+
+#include "/home/rei/.config/vim/plugged/seoul256.vim/urxvt/seoul256"
