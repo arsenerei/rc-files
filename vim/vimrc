@@ -67,6 +67,8 @@ Plug 'kovetskiy/sxhkd-vim'
 Plug 'reedes/vim-pencil'
 " Plug 'mtth/scratch.vim'
 Plug 'clojure-vim/vim-cider'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'tmux-plugins/vim-tmux'
 
 call plug#end()
 
@@ -201,10 +203,10 @@ nnoremap <silent> <Leader>sv :source $MYVIMRC<CR>
 nnoremap q; q:
 
 " quicker window navigation
-nnoremap <silent> <C-j> <C-w>j
-nnoremap <silent> <C-k> <C-w>k
-nnoremap <silent> <C-h> <C-w>h
-nnoremap <silent> <C-l> <C-w>l
+" nnoremap <silent> <C-j> <C-w>j
+" nnoremap <silent> <C-k> <C-w>k
+" nnoremap <silent> <C-h> <C-w>h
+" nnoremap <silent> <C-l> <C-w>l
 
 " get the commandline quickly
 noremap ; :
@@ -303,6 +305,8 @@ let g:clojure_maxlines = 200
 " Remember to :Connect <figwheel-port> first
 " TODO: command! Fig which does both of these and defaults to 7002
 command! PC Piggieback (figwheel-sidecar.repl-api/repl-env)
+
+let g:tmux_navigator_disable_when_zoomed = 1
 
 " Goyo
 function! s:goyo_enter()
