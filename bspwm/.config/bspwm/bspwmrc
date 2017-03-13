@@ -1,0 +1,25 @@
+#!/bin/env bash
+
+bspc monitor -d 1 2 3
+
+bspc config border_width 0
+bspc config window_gap 10
+
+# maximized windows
+bspc desktop ^2 --layout monocle
+
+bspc rule -a URxvt:floating state=floating
+bspc rule -a Firefox desktop='^2'
+bspc rule -a Firefox:Dialog state=floating
+bspc rule -a 'Firefox:Library' state=floating
+bspc rule -a guvcview state=floating
+
+bspc query -D | while read desktop; do
+    bspc rule -a URxvt:$desktop"_terminal" state=floating layer=above
+done
+
+yeahconsole &
+xdotool behave_screen_edge --quiesce 0 bottom-left exec --sync bspc node --focus next.local &
+xdotool behave_screen_edge --quiesce 0 left exec --sync bspc desktop --focus
+prev.local &
+xdotool behave_screen_edge --quiesce 0 right exec --sync bspc desktop --focus next.local &
