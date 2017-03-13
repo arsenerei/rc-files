@@ -1,0 +1,6 @@
+# Vim
+*~
+*.swp
+
+# Clojure
+.nrepl-history
