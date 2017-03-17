@@ -1,19 +1,19 @@
 set editing-mode vi
 set show-mode-in-prompt on
 set keymap vi
+
 $if mode=vi
+    set keymap vi-command
+    # these are for vi-command mode
+    Control-l: clear-screen
+    Control-j: menu-complete
+    Control-k: menu-complete-backward
 
-set keymap vi-command
-# these are for vi-command mode
-Control-l: clear-screen
-Control-j: menu-complete
-Control-k: menu-complete-backward
-
-set keymap vi-insert
-# these are for vi-insert mode
-Control-l: clear-screen 
-Control-j: menu-complete
-Control-k: menu-complete-backward
+    set keymap vi-insert
+    # these are for vi-insert mode
+    Control-l: clear-screen 
+    Control-j: menu-complete
+    Control-k: menu-complete-backward
 $endif
 
 set completion-ignore-case on
