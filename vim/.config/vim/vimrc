@@ -6,7 +6,6 @@ set directory=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupdir=$XDG_CACHE_HOME/vim,~/,/tmp
 set backupskip=/tmp/*,/private/tmp/*  " stupid crontab
 set runtimepath=$XDG_CONFIG_HOME/vim,$VIM,$VIMRUNTIME,$XDG_CONFIG_HOME/vim/after
-set rtp+=/usr/local/opt/fzf
 let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
 let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 
@@ -15,28 +14,26 @@ let g:netrw_home=$XDG_CACHE_HOME . '/vim'
 
 call plug#begin()
 
-" Basic
+set rtp+=/usr/local/opt/fzf
 Plug 'junegunn/fzf' " This is here because I can't seem to find something that works in Arch Linux the it does on OS X
 Plug 'junegunn/fzf.vim'
+
+" Basic
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 " Plug 'tomtom/tcomment_vim'
-" Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-capslock'
 Plug 'tommcdo/vim-exchange'
 Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'arsenerei/vim-easymotion'
 Plug 'sjl/gundo.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'vimwiki/vimwiki'
-Plug 'justinmk/vim-sneak'
-" FIXME: Commented out to prevent flickering cursor.
-" Plug 'Raimondi/delimitMate' " Must be loaded *before* vim-endwise
-" Plug 'tpope/vim-endwise'
 Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
 
@@ -50,12 +47,14 @@ Plug 'guns/vim-clojure-static', {'for': 'clojure'}
 " Plug 'tpope/vim-classpath', {'for': 'clojure'}
 Plug 'guns/vim-sexp', {'for': 'clojure'}
 Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for': 'clojure'}
-Plug '~/github/vim-sayid'
+Plug 'arsenerei/vim-sayid'
 
 " Trials
 Plug 'mileszs/ack.vim'
+Plug 'dkprice/vim-easygrep'
 Plug 'stefandtw/quickfix-reflector.vim'
 Plug 'mattn/emmet-vim'
+Plug 'wellle/targets.vim'
 Plug 'jceb/vim-orgmode'
 Plug 'ehamberg/vim-cute-python'
 " Plug 'honza/vim-clojure-conceal'
@@ -69,6 +68,7 @@ Plug 'reedes/vim-pencil'
 Plug 'clojure-vim/vim-cider'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tmux-plugins/vim-tmux'
+Plug 'stephpy/vim-yaml'
 
 call plug#end()
 
@@ -77,13 +77,14 @@ filetype on
 filetype plugin on
 filetype indent on
 
+runtime macros/matchit.vim
+
 " }}}
 " Basic options     ---------------------------------------------------------{{{
 
 set nocompatible
 set viminfo+=n$XDG_CACHE_HOME/vim/viminfo " has to be after nocompatible
 set backspace=indent,eol,start
-" set hlsearch
 set incsearch
 set showcmd
 set hidden
@@ -97,14 +98,14 @@ set shiftwidth=4
 set shiftround
 set wrap
 set linebreak
-set showbreak=\ +
-set breakindent " Check feature
+if exists('+breakindent')
+    set breakindent showbreak=\ +
+endif
 set textwidth=80
 set scrolloff=5
 set laststatus=2
 set ttimeoutlen=0 " no more pause on ESC
 set nolist
-set noruler
 set listchars=tab:▸\ ,extends:❯,precedes:❮,trail:·
 set fillchars=vert:\ ,fold:-
 set clipboard=unnamed
@@ -114,8 +115,6 @@ set display=lastline
 
 " trial
 set lazyredraw
-set completeopt+=noinsert " don't choose a text by default
-set completeopt-=preview  " no preview window
 
 function! s:color_specifics()
     " FIXME: Try this out to see if I like it. I want to play around with a
@@ -144,8 +143,9 @@ augroup END
 " term colors
 if &t_Co > 255
     set t_Co=256
-    colorscheme seoul256
-    set background=dark
+    colorscheme seoul256-light " (hack to fix the ColorScheme)
+    " colorscheme seoul256
+    " set background=dark
 else
     set t_Co=16
 endif
@@ -154,22 +154,10 @@ if v:version > 703 || v:version == 703 && has("patch541")
   set formatoptions+=j " Delete comment character when joining commented lines
 endif
 
-" Auto format paragraphs
-" A failed experiment.  There are too many edge cases where I don't want the
-" paragraph autoformatted (e.g., writing code, paragraphs accidentally touching
-" each other).  I would need to write a plugin to be smarter about when to
-" format and when not to.
-" augroup markdown
-"     autocmd!
-"     autocmd FileType markdown setl fo+=a
-" augroup END
-
-runtime macros/matchit.vim
-
 " Wildmenu completion {{{
 
-set wildmode=longest,list,full
 set wildmenu
+set wildmode=longest,list,full
 set wildignore+=.hg,.git,.svn                    " Version control
 set wildignore+=*.aux,*.out,*.toc                " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg   " binary images
@@ -188,7 +176,6 @@ let mapleader=','
 let maplocalleader='\'
 
 noremap <silent> Y y$
-
 nnoremap <silent> gb :b#<CR>
 nnoremap <silent> <Space> :nohlsearch<CR><C-L>
 
@@ -200,9 +187,8 @@ imap ✠ <S-CR>
 nnoremap <silent> <Leader>ev :e $MYVIMRC<CR>
 nnoremap <silent> <Leader>sv :source $MYVIMRC<CR>
 
-nnoremap q; q:
-
 " quicker window navigation
+" I'm trying out tmux-navigator
 " nnoremap <silent> <C-j> <C-w>j
 " nnoremap <silent> <C-k> <C-w>k
 " nnoremap <silent> <C-h> <C-w>h
@@ -210,9 +196,7 @@ nnoremap q; q:
 
 " get the commandline quickly
 noremap ; :
-" I'm playing with vim-sneak at the moment
-" noremap : ;
-map : <Plug>SneakNext
+noremap : ;
 
 " Command-line
 cnoremap <C-A> <Home>
@@ -221,9 +205,22 @@ cnoremap <C-K> <C-U>
 cnoremap <C-P> <Up>
 cnoremap <C-N> <Down>
 
+" Here just to remember
+nnoremap <C-W>o :tab split<CR>
+
 " FZF
 nnoremap <silent> ,t :Files<CR>
 nnoremap <silent> ,b :Buffers<CR>
+imap <c-x><c-f> <plug>(fzf-complete-path)
+
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+
+nnoremap <leader>g :Rg 
 
 " gc is slower and harder to type
 xmap <leader>c  <Plug>Commentary
@@ -260,45 +257,17 @@ augroup pencil
     autocmd FileType text call pencil#init()
 augroup END
 
-" FIXME: work in progress to visual differentiate long lines. I'm aiming for a
-" visually quieter editor. (e.g., set nonumber noruler)
-" augroup MyError
-"     autocmd!
-"     highlight OverLength term=reverse ctermbg=236 guibg=#3F3F3F
-"     " combine with execute and &textwidth to determine OverLength position
-"     autocmd BufWinEnter * let w:m1=matchadd('OverLength', '\%80v.', +1)
-" augroup END
-
 " }}}
 " Plugin options    ---------------------------------------------------------{{{
 
 let g:EasyMotion_display_jump_message = 0
 let g:pandoc_use_hard_wraps=1
 
-" DelimitMate
-let delimitMate_offByDefault = 0
-let delimitMate_expand_cr = 1
-
-" TODO: A lot of these wil show up on lisp vs non-lisp. It will make sense to
-" refactor this later.
-augroup delimitMate
-    autocmd! FileType clojure let b:delimitMate_expand_cr = 0
-
-    " FIXME: This still doesn't work
-    " Setting this explicitly on the command line and then e! the file works
-    " FIXME: Why doesn't it work with FileType?
-    autocmd! BufNewFile,BufRead *.rs let delimitMate_quotes = "\" `" autocmd! BufNewFile,BufRead *.rs let b:delimitMate_quotes = "\" `"
-    " autocmd! FileType rust let delimitMate_quotes = "\" `"
-augroup END
 
 " Not sure if I want to keep this, the default is 100, but I wrote something
 " that was nearly double that.
 let g:clojure_maxlines = 200
-
-" augroup clojure
-"     autocmd!
-"     autocmd CompleteDone *.clj pclose
-" augroup END
+let g:clojure_align_subforms = 1
 
 " Clojure
 " Connect to CLJS REPL
@@ -344,16 +313,6 @@ if filereadable(s:local_vimrc)
     execute 'source' s:local_vimrc
 endif
 
-command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
-
-nnoremap <leader>g :Rg 
-
-imap <c-x><c-f> <plug>(fzf-complete-path)
 
 " NOTE: uncomment when you want to do syntax checking
 " function! SyntaxItem()
