@@ -35,7 +35,7 @@ fi
 redshift &         # protect my eyes
 sxhkd &            # keybindings
 unclutter &        # hide mouse
-urxvtd -q -f -o &  #terminal
+urxvtd -q -f -o &  # terminal
 
 # Tap caps = escape; Caps + <key> = Ctrl + <key>
 setxkbmap -option 'caps:ctrl_modifier'
