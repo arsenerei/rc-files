@@ -6,8 +6,8 @@ URxvt*scrollBar: false
 /* URxvt*iso14755: false */
 /* Pretty sure I don't need termName */
 /* URxvt.termName: rxvt-unicode-256color */
-URxvt.font: xft:Source Code Pro:size=12,xft:Symbola:regular:size=9
-URxvt.boldFont: xft:Source Code Pro:bold:size=12,xft:Symbola:bold:size=9
+URxvt.font: xft:Source Code Pro:size=14,xft:Symbola:regular:size=11
+URxvt.boldFont: xft:Source Code Pro:bold:size=14,xft:Symbola:bold:size=11
 URxvt.perl-ext-common: default,matcher,clipboard,url-select,keyboard-select,resize-font
 URxvt.url-select.launcher: firefox
 URxvt.url-select.underline: true
@@ -37,7 +37,7 @@ rofi.color-window: #3a3a3a, #000000
 
 ! yeahconsole
 yeahconsole*term: urxvtc
-yeahconsole*consoleHeight: 15
+yeahconsole*consoleHeight: 20
 yeahconsole*handleWidth: 0
 yeahconsole*aniDelay: 0
 yeahconsole*toggleKey: Alt+e

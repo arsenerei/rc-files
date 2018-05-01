@@ -20,6 +20,5 @@ done
 
 yeahconsole &
 xdotool behave_screen_edge --quiesce 0 bottom-left exec --sync bspc node --focus next.local &
-xdotool behave_screen_edge --quiesce 0 left exec --sync bspc desktop --focus
-prev.local &
-xdotool behave_screen_edge --quiesce 0 right exec --sync bspc desktop --focus next.local &
+xdotool behave_screen_edge --quiesce 0 left exec --sync bspc desktop --focus prev.local &
+# xdotool behave_screen_edge --quiesce 0 right exec --sync bspc desktop --focus next.local &

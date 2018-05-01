@@ -26,7 +26,9 @@ shopt -s checkwinsize
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-export EDITOR='vim'
+export BROWSER=firefox
+export EDITOR=vim
+export VISUAL=$EDITOR
 
 # XDG configuration
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -47,7 +49,11 @@ alias mutt='mutt -F $XDG_CONFIG_HOME/mutt/muttrc'
 
 alias ls='ls --color=auto'
 alias ll='ls -l'
+alias la='ls -a'
+alias lla='ls -l -a'
 alias vb='vim ~/.bashrc'
+alias weather='curl wttr.in/94703'
+
 PS1='[\u@\h \W]\$ '
 
 space() {
@@ -101,4 +107,12 @@ fshow() {
                 xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
                 {}
 FZF-EOF"
+}
+
+bashrc() {
+    vim ~/.bashrc
+}
+
+sb() {
+    source ~/.bashrc
 }

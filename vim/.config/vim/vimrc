@@ -21,8 +21,9 @@ Plug 'junegunn/fzf.vim'
 " Basic
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-commentary'
-" Plug 'tomtom/tcomment_vim'
+" Plug 'tpope/vim-commentary'
+Plug 'tomtom/tcomment_vim'
+" Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-capslock'
@@ -34,16 +35,23 @@ Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'vimwiki/vimwiki'
+
+" Plug 'justinmk/vim-sneak'
+" FIXME: Commented out to prevent flickering cursor.
+" Plug 'Raimondi/delimitMate' " Must be loaded *before* vim-endwise
+" Plug 'tpope/vim-endwise'
 Plug 'othree/html5.vim'
 Plug 'elzr/vim-json'
+Plug 'easymotion/vim-easymotion'
 
 " Colorschemes
 Plug 'junegunn/seoul256.vim'
 
 " Clojure
 Plug 'tpope/vim-fireplace', {'for': 'clojure'}
+" Plug 'SevereOverfl0w/vim-fireplace', {'branch': 'pprintcpp', 'dir': '~/vim-fireplace-severe', 'for': 'clojure'}
 Plug 'guns/vim-clojure-static', {'for': 'clojure'}
-" Plug 'guns/vim-clojure-highlight', {'for': 'clojure'}
+Plug 'guns/vim-clojure-highlight', {'for': 'clojure'}
 " Plug 'tpope/vim-classpath', {'for': 'clojure'}
 Plug 'guns/vim-sexp', {'for': 'clojure'}
 Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for': 'clojure'}
@@ -60,7 +68,6 @@ Plug 'ehamberg/vim-cute-python'
 " Plug 'honza/vim-clojure-conceal'
 " Plug 'vim-scripts/diffchar.vim' " Nice, but overwrite ]e
 Plug 'jelera/vim-javascript-syntax'
-Plug 'rust-lang/rust.vim'
 Plug 'cespare/vim-toml'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'reedes/vim-pencil'
@@ -69,6 +76,17 @@ Plug 'clojure-vim/vim-cider'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'stephpy/vim-yaml'
+
+Plug 'rust-lang/rust.vim'
+Plug 'racer-rust/vim-racer'
+let g:racer_cmd = "/usr/bin/racer"
+
+if has('nvim')
+    Plug 'neovim/node-host', { 'do': 'npm install -g neovim' }
+    Plug 'clojure-vim/clj-refactor.nvim'
+    " Plug 'SevereOverfl0w/vim-replant', { 'do': ':UpdateRemotePlugins' }
+    " Plug 'clojure-vim/acid.nvim', { 'do': ':UpdateRemotePlugins' }
+endif
 
 call plug#end()
 
@@ -82,8 +100,11 @@ runtime macros/matchit.vim
 " }}}
 " Basic options     ---------------------------------------------------------{{{
 
-set nocompatible
-set viminfo+=n$XDG_CACHE_HOME/vim/viminfo " has to be after nocompatible
+if !has('nvim')
+    set nocompatible
+    set viminfo+=n$XDG_CACHE_HOME/vim/viminfo " has to be after nocompatible
+endif
+
 set backspace=indent,eol,start
 set incsearch
 set showcmd
@@ -108,13 +129,24 @@ set ttimeoutlen=0 " no more pause on ESC
 set nolist
 set listchars=tab:▸\ ,extends:❯,precedes:❮,trail:·
 set fillchars=vert:\ ,fold:-
-set clipboard=unnamed
 set foldlevelstart=0
 set foldmethod=marker
 set display=lastline
 
+if has('unnamedplus')
+    set clipboard^=unnamed,unnamedplus
+else
+    set clipboard^=unnamed
+endif
+
+if has('nvim')
+    set nohlsearch
+endif
+
 " trial
 set lazyredraw
+" set completeopt+=noinsert " don't choose a text by default
+set completeopt-=preview  " no preview window
 
 function! s:color_specifics()
     " FIXME: Try this out to see if I like it. I want to play around with a
@@ -132,6 +164,7 @@ function! s:color_specifics()
 
     " FIXME: Playing around with italics, but need to test this. I can guarantee
     " it's not always working. Look at the I and t in this paragraph...
+    " FIXME: Italics don't work on Linux with Tmux
     highlight Comment cterm=italic
 endfunction
 
@@ -222,12 +255,6 @@ command! -bang -nargs=* Rg
 
 nnoremap <leader>g :Rg 
 
-" gc is slower and harder to type
-xmap <leader>c  <Plug>Commentary
-nmap <leader>c  <Plug>Commentary
-omap <leader>c  <Plug>Commentary
-nmap <leader>cc <Plug>CommentaryLine
-
 " Swap words using exchange
 " TODO: Test inside a Clojure file
 nnoremap <silent> >e :norm cxew.<CR>
@@ -260,14 +287,39 @@ augroup END
 " }}}
 " Plugin options    ---------------------------------------------------------{{{
 
-let g:EasyMotion_display_jump_message = 0
+let g:EasyMotion_verbose = 0
 let g:pandoc_use_hard_wraps=1
 
+" DelimitMate
+let delimitMate_offByDefault = 0
+let delimitMate_expand_cr = 1
+
+let g:tcomment_opleader1 = '<leader>c'
+
+" TODO: A lot of these wil show up on lisp vs non-lisp. It will make sense to
+" refactor this later.
+augroup delimitMate
+    autocmd! FileType clojure let b:delimitMate_expand_cr = 0
+
+    " FIXME: This still doesn't work
+    " Setting this explicitly on the command line and then e! the file works
+    " FIXME: Why doesn't it work with FileType?
+    autocmd! BufNewFile,BufRead *.rs let delimitMate_quotes = "\" `"
+    autocmd! BufNewFile,BufRead *.rs let b:delimitMate_quotes = "\" `"
+    " autocmd! FileType rust let delimitMate_quotes = "\" `"
+augroup END
 
 " Not sure if I want to keep this, the default is 100, but I wrote something
 " that was nearly double that.
 let g:clojure_maxlines = 200
 let g:clojure_align_subforms = 1
+
+augroup clojure
+    autocmd!
+    " remove the pesky fireplace temp files
+    autocmd BufReadPost /tmp*[0-9]\+.clj set bufhidden=delete
+    " autocmd CompleteDone *.clj pclose
+augroup END
 
 " Clojure
 " Connect to CLJS REPL
@@ -313,6 +365,20 @@ if filereadable(s:local_vimrc)
     execute 'source' s:local_vimrc
 endif
 
+" let g:fireplace_print_right_margin = 80
+" let g:fireplace_print_length = 10000
+" let g:fireplace_print_level = 10000
+
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
+
+nnoremap <leader>g :Rg 
+
+imap <c-x><c-f> <plug>(fzf-complete-path)
 
 " NOTE: uncomment when you want to do syntax checking
 " function! SyntaxItem()
@@ -323,3 +389,31 @@ endif
 
 " nmap <leader>ss :set statusline=%f\ %{SyntaxItem()}<CR>
 " noremap <leader>ss i :set statusline=%f<CR>
+
+" https://gist.github.com/romainl/eabe0fe8c564da1b6cfe1826e1482536
+augroup TooLong
+    autocmd!
+    autocmd winEnter,BufEnter * call clearmatches() | call matchadd('ColorColumn', '\%81v', 100)
+augroup END
+
+" https://gist.github.com/romainl/eae0a260ab9c135390c30cd370c20cd7
+function! Redir(cmd)
+	for win in range(1, winnr('$'))
+		if getwinvar(win, 'scratch')
+			execute win . 'windo close'
+		endif
+	endfor
+	if a:cmd =~ '^!'
+		execute "let output = system('" . substitute(a:cmd, '^!', '', '') . "')"
+	else
+		redir => output
+		execute a:cmd
+		redir END
+	endif
+	vnew
+	let w:scratch = 1
+	setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
+	call setline(1, split(output, "\n"))
+endfunction
+
+command! -nargs=1 Redir silent call Redir(<f-args>)
