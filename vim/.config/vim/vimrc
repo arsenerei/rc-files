@@ -417,3 +417,44 @@ function! Redir(cmd)
 endfunction
 
 command! -nargs=1 Redir silent call Redir(<f-args>)
+
+function! CljNsToFile(ns)
+    let f0 = a:ns
+    let f0 = substitute(f0, '-', '_', 'g')
+    let f0 = substitute(f0, '\.', '/', 'g')
+    let f0 = substitute(f0, '$', '.clj', '')
+    return f0
+endfunction
+
+function! CljFile(ns, filepath) abort
+    echo a:filepath
+    if filereadable(a:filepath)
+        echo "File already exists"
+        return
+    endif
+
+    let dir_path = fnamemodify(a:filepath, ":h")
+    call system('mkdir -p ' . dir_path)
+
+    execute 'vsplit' a:filepath
+    execute 'normal i' . '(ns ' . a:ns .')'
+endfunction
+
+function! CljSrcFile(ns) abort
+    let file = CljNsToFile(a:ns)
+    let file = substitute(file, '^', 'src/', '')
+    call CljFile(a:ns, file)
+endfunction
+
+function! CljTestFile(ns) abort
+    let file = CljNsToFile(a:ns)
+    let file = substitute(file, '^', 'test/', '')
+    call CljFile(a:ns, file)
+endfunction
+
+command! -nargs=1 CljFile call CljFile(<f-args>)
+command! -nargs=1 CljSrcFile call CljSrcFile(<f-args>)
+command! -nargs=1 CljTestFile call CljTestFile(<f-args>)
+
+nnoremap ,fs :CljSrcFile<Space>
+nnoremap ,ft :CljTestFile<Space>
