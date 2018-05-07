@@ -401,6 +401,8 @@ endfunction
 
 command! -nargs=1 Redir silent call Redir(<f-args>)
 
+" Clojure configuration    --------------------------------------------------{{{
+
 function! CljNsToFile(ns)
     let f0 = a:ns
     let f0 = substitute(f0, '-', '_', 'g')
@@ -441,3 +443,5 @@ command! -nargs=1 CljTestFile call CljTestFile(<f-args>)
 
 nnoremap ,fs :CljSrcFile<Space>
 nnoremap ,ft :CljTestFile<Space>
+
+" }}}
