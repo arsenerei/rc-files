@@ -45,6 +45,10 @@ export VIMINIT='let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc" | source $MYVIMRC"'
 alias w='vim +:VimwikiMakeDiaryNote'
 alias wi='vim +:VimwikiIndex'
 
+if [[ $(which open 1>/dev/null 2>&1) ]]; then
+    alias open='xdg-open'
+fi
+
 alias mutt='mutt -F $XDG_CONFIG_HOME/mutt/muttrc'
 
 alias ls='ls --color=auto'
