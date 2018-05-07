@@ -445,3 +445,11 @@ nnoremap ,fs :CljSrcFile<Space>
 nnoremap ,ft :CljTestFile<Space>
 
 " }}}
+
+" Because of netrw, tpope changed vim-unimpaired's mapping to =o. The ergonomics
+" of co was much better for me.
+let g:nremap = {"=": "c"}
+let g:xremap = {"=": "c"}
+let g:oremap = {"=": "c"}
+" nunmap co
+" for some reason this mapping doesn't exist until have this file is loaded
